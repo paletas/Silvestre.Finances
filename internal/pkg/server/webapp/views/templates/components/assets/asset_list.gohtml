@@ -1,0 +1,21 @@
+{{define "components/assets/asset_list"}}}
+<table>
+    <thead>
+        <th>Id</th>
+        <th>Transaction Id</th>
+        <th>Executed At</th>
+        <th>Asset</th>
+        <th>Amount</th>
+    </thead>
+    <tbody>
+        {{range .}}
+        <tr>
+            <td>{{.Id}}</td>
+            <td>{{.TransactionId}}</td>
+            <td>{{.ExecutedAt}}</td>
+            <td>{{.Asset}}</td>
+            <td>{{.Amount}}</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
