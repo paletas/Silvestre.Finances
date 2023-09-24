@@ -14,11 +14,22 @@ type UnspentOutput struct {
 	AssetType     assets.AssetType
 	AssetId       string
 	Amount        float64
+	CostBasis     float64
+	Fees          float64
 	Spent         bool
 	SpentDate     time.Time
+	SpendFees     float64
 }
 
-func createUnspentOutput(transaction_id string, date time.Time, asset_type assets.AssetType, asset_id string, amount float64) UnspentOutput {
+func CreateUnspentOutput(
+	transaction_id string,
+	date time.Time,
+	asset_type assets.AssetType,
+	asset_id string,
+	amount float64,
+	costBasis float64,
+	fees float64) UnspentOutput {
+
 	return UnspentOutput{
 		TransactionId: transaction_id,
 		Date:          date,
@@ -30,13 +41,14 @@ func createUnspentOutput(transaction_id string, date time.Time, asset_type asset
 	}
 }
 
-func (utxo *UnspentOutput) markAsSpent(date time.Time) error {
+func (utxo *UnspentOutput) MarkAsSpent(date time.Time, fees float64) error {
 	if utxo.Spent {
 		return errors.New("unspent output already spent")
 	}
 
 	utxo.Spent = true
 	utxo.SpentDate = date
+	utxo.SpendFees = fees
 
 	return nil
 }

@@ -1,12 +1,14 @@
 module github.com/paletas/silvestre.finances
 
-go 1.20
+go 1.21
 
 require github.com/gofiber/fiber/v2 v2.48.0
 
 require (
 	github.com/gofiber/template v1.8.2 // indirect
 	github.com/gofiber/utils v1.1.0 // indirect
+	github.com/piquette/finance-go v1.1.0 // indirect
+	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24 // indirect
 )
 
 require (

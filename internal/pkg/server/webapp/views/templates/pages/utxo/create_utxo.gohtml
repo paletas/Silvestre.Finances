@@ -1,0 +1,52 @@
+{{define "utxo/create"}}
+
+<h1>New Transaction</h1>
+
+<form id="create-utxo-form">
+   <div class="row">
+        <div class="col">
+            <select name="assetType" class="form-select" aria-label="Asset type selector"
+                hx-get="/utxo/create/asset" hx-target="#asset" hx-swap="innerHTML">
+                <option value="" {{if eq .AssetType "UNKNOWN"}} selected {{end}}>Asset Type</option>
+                <option value="STOCK" {{if eq .AssetType "STOCK"}} selected {{end}}>Stock</option>
+                <option value="CRYPTO" {{if eq .AssetType "CRYPTO"}} selected {{end}}>Crypto</option>
+            </select>
+        </div>
+        <div class="col">
+            <input id="date" type="date" class="form-control" aria-label="Transaction date">
+        </div>
+    </div>
+    
+    <div class="row mt-3" id="asset">
+        {{template "utxo/create/asset" .}}
+    </div>
+        
+    <div class="row mt-3">
+        <div class="col">
+            <input name="id" type="text" class="form-control" placeholder="Transaction ID" aria-label="Transaction ID"/>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col">
+            <input name="quantity" type="number" class="form-control" placeholder="Quantity" aria-label="Quantity">
+        </div>
+        <div class="col">
+            {{template "components/inputs/monetary" .CostBasisField }}
+        </div>
+        <div class="col">
+            {{template "components/inputs/monetary" .FeesField }}
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col d-grid">
+            <div class="btn-group row">
+                <a href="/" class="btn btn-outline-warning col-6">Cancel</a>
+                <button name="action" value="create" class="btn btn-primary col-6" type="submit">Create</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+{{end}}

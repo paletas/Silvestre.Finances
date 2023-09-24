@@ -1,0 +1,63 @@
+{{define "assets/create/stock"}}
+
+<h1>New Stock Asset</h1>
+
+<form hx-post="/assets/create/stock" hx-target="body">
+    <input type="hidden" name="returnUrl" value="{{.ReturnUrl}}">
+
+    <div class="row">
+        {{if .Ticker }}
+        <div class="row">
+            <div class="col-2">    
+                <input name="stockTicker" type="text" class="form-control" placeholder="Ticker" aria-label="Ticker" readonly value="{{.Ticker}}">        
+            </div>
+            <div class="col-8">
+                <input name="stockName" type="text" class="form-control" placeholder="Name" aria-label="Name" readonly value="{{.TickerName}}">
+            </div>
+            <div class="col-2">
+                <button name="action" value="clear-search" class="btn btn-outline-danger"
+                    hx-post="/assets/create/stock" hx-target="body" hx-params="not stockTicker,stockName">Clear</button>
+            </div>
+        </div>
+        {{else}}
+        <div class="row">
+            <div class="col-2">
+                <select name="priceSource" class="form-select" aria-label="Price source selector">
+                    <option value="UNKNOWN">Price Source</option>
+                    <option value="POLYGON" selected>Polygon</option>
+                </select>
+            </div>
+            <div class="col-8">
+                <input id="tickerSearch" name="tickerSearch" type="text" value="{{.SearchedTicker}}"
+                    class="form-control" placeholder="Ticker Search" aria-label="Ticker Search"
+                    hx-post="/assets/create/stock" hx-target="body"
+                    hx-trigger="keyup changed delay:200ms">
+            </div>
+            <div class="col-2">
+                <button name="action" value="search" class="btn btn-outline-primary">Search</button>
+            </div>
+        </div>
+    
+        {{if .AssetsFound }}
+        <div class="row">
+            {{$ChoosenTicker := .Ticker}}
+            <select class="form-select" name="stockTicker" aria-label="Stock assets" size="10" hx-post="/assets/create/stock" hx-target="body">
+                <option {{if not .Ticker}}selected{{end}}>Stock Assets</option>
+                {{range .AssetsFound}}
+                <option value="{{.Ticker}}" {{if eq $ChoosenTicker .Ticker}}selected{{end}}>{{.Ticker}} - {{.Name}}</option>
+                {{end}}
+            </select>
+        </div>
+        {{end}}
+        {{end}}
+    </div>
+
+    <div class="row mt-3">
+        <div class="btn-group" role="group" aria-label="AssetActions">
+            <button name="action" value="create" class="btn btn-primary" type="submit" {{if not .Ticker}}disabled{{end}}>Create</button>
+            <a href="{{.ReturnUrl}}" class="btn btn-outline-primary">Cancel</a>
+        </div>
+    </div>
+</form>
+
+{{end}}

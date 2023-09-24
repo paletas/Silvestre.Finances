@@ -46,9 +46,20 @@ github.com/mattn/go-runewidth
 # github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe
 ## explicit
 github.com/montanaflynn/stats
+# github.com/piquette/finance-go v1.1.0
+## explicit; go 1.13
+github.com/piquette/finance-go
+github.com/piquette/finance-go/chart
+github.com/piquette/finance-go/datetime
+github.com/piquette/finance-go/form
+github.com/piquette/finance-go/iter
+github.com/piquette/finance-go/quote
 # github.com/rivo/uniseg v0.4.4
 ## explicit; go 1.18
 github.com/rivo/uniseg
+# github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24
+## explicit
+github.com/shopspring/decimal
 # github.com/valyala/bytebufferpool v1.0.0
 ## explicit
 github.com/valyala/bytebufferpool

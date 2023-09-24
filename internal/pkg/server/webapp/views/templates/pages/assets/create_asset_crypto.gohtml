@@ -1,0 +1,30 @@
+{{define "assets/create/crypto"}}
+
+<h1>New Crypto Asset</h1>
+
+<form>
+    <div class="row">
+        <div class="col-2">
+            <input id="ticker" type="text" class="form-control" placeholder="Ticker" aria-label="Ticker">
+        </div>
+        <div class="col-10">
+            <input id="name" type="text" class="form-control" placeholder="Name" aria-label="Name">
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <select name="priceSource" class="form-select" aria-label="Price source selector">
+            <option value="UNKNOWN">Price Source</option>
+            <option value="COINMARKETCAP" selected>CoinMarketCap</option>
+        </select>
+    </div>
+
+    <div class="row">
+        <div class="btn-group" role="group" aria-label="AssetActions">
+            <button id="createAsset" class="btn btn-primary" type="submit">Create</button>
+            <a href="/assets" class="btn btn-outline-primary">Cancel</a>
+        </div>
+    </div>
+</form>
+
+{{end}}

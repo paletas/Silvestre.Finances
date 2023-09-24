@@ -1,0 +1,12 @@
+{{define "home/index"}}
+
+<h1>Global Wealth at {{.TotalWealth}}</h1>
+
+{{template "home/partials/index_utxolist" .}}
+
+<div class="btn-group" role="group" aria-label="UtxoActions">
+    <a href="/utxo/create" class="btn btn-primary">Add Transaction</a>
+    <a href="/" class="btn btn-outline-primary">Upload CSV</a>
+</div>
+
+{{end}}

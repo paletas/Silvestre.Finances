@@ -1,0 +1,37 @@
+{{define "utxo/create/asset/stock"}}
+<div class="col-10">
+    {{$choosenAsset := .AssetTicker}}
+    <select name="assetTicker" class="form-select select-searchable" size="5" aria-label="Stock ticker selector">
+        <option value="" {{if not .AssetTicker}}selected{{end}}>Stock Ticker</option>
+        {{range .Assets}}
+            <option value="{{.Key}}" {{if eq $choosenAsset .Key}}selected{{end}}>{{.Description}}</option>
+        {{end}}
+    </select>
+</div>
+<div class="col-2 d-grid">
+    <a id="addStock" class="btn btn-outline-primary" href="/assets/create/stock?returnUrl={{urlquery "/utxo/create?assetType=STOCK"}}">+</a>
+</div>
+{{end}}
+
+{{define "utxo/create/asset/crypto"}}
+<div class="col-10">
+    {{$choosenAsset := .AssetTicker}}
+    <select name="assetTicker" class="form-select select-searchable" size="5" aria-label="Crypto ticker selector">
+        <option value="" selected>Crypto Ticker</option>
+        {{range .Assets}}
+            <option value="{{.Key}}" {{if eq $choosenAsset .Key}}selected{{end}}>{{.Description}}</option>
+        {{end}}
+    </select>
+</div>
+<div class="col-2 d-grid">
+    <a id="addCrypto" class="btn btn-outline-primary" href="/assets/create/crypto?returnUrl={{urlquery "/utxo/create?assetType=CRYPTO"}}">+</a>
+</div>
+{{end}}
+
+{{define "utxo/create/asset"}}
+{{if eq .AssetType "STOCK"}}
+{{template "utxo/create/asset/stock" .}}
+{{else if eq .AssetType "CRYPTO"}}
+{{template "utxo/create/asset/crypto" .}}
+{{end}}
+{{end}}

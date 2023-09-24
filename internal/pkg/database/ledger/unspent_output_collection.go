@@ -34,8 +34,8 @@ func (uc *UnspentOutputCollection) InsertOne(utxo *ledger.UnspentOutput) (string
 	}
 
 	id, convertion_worked := result.InsertedID.(primitive.ObjectID)
-	if convertion_worked == false {
-		return "", errors.New("Could not convert inserted ID to string")
+	if !convertion_worked {
+		return "", errors.New("could not convert inserted ID to string")
 	}
 
 	return id.Hex(), nil

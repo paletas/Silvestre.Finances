@@ -1,0 +1,30 @@
+{{define "home/partials/index_utxolist"}}
+
+<div id="utxo">
+    <ul class="nav nav-pills" id="utxo-list-tabs" role="tablist">
+        <li class="nav-item" >
+            <a class="nav-link  {{ if eq .Filter "ALL" }} active {{end}}" {{ if eq .Filter "ALL" }} aria-current="page" {{ end }} 
+                hx-get="/partial/utxo_list?assetType=ALL"
+                hx-target="#utxo" hx-swap="outerHTML"
+                href="?assetType=ALL">All</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link  {{ if eq .Filter "STOCK" }} active {{end}}" {{ if eq .Filter "STOCK" }} aria-current="page" {{ end }} 
+                hx-get="/partial/utxo_list?assetType=STOCK"
+                hx-target="#utxo" hx-swap="outerHTML"
+                href="?assetType=STOCK">Stocks</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link  {{ if eq .Filter "CRYPTO" }} active {{end}}" {{ if eq .Filter "CRYPTO" }} aria-current="page" {{ end }} 
+                hx-get="/partial/utxo_list?assetType=CRYPTO"
+                hx-target="#utxo" hx-swap="outerHTML"
+                href="?assetType=CRYPTO">Crypto</a>
+        </li>
+    </ul>
+    
+    <div class="utxo-list">
+        {{template "components/assets/asset_list" .Items}}
+    </div>
+</div>
+
+{{end}}

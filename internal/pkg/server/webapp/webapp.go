@@ -7,26 +7,58 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
 
+	"github.com/paletas/silvestre.finances/internal/pkg/assets"
+	"github.com/paletas/silvestre.finances/internal/pkg/feeds/polygon"
 	"github.com/paletas/silvestre.finances/internal/pkg/ledger"
-	"github.com/paletas/silvestre.finances/internal/pkg/server/webapp/views"
+	assets_views "github.com/paletas/silvestre.finances/internal/pkg/server/webapp/views/assets"
+	home_views "github.com/paletas/silvestre.finances/internal/pkg/server/webapp/views/home"
+	utxo_views "github.com/paletas/silvestre.finances/internal/pkg/server/webapp/views/utxo"
 )
 
 var (
-	//go:embed "views/**/*.gohtml"
+	//go:embed "views/templates/*"
 	viewTemplates embed.FS
 )
 
-func LaunchServer(ledger *ledger.Ledger) *fiber.App {
-	app := fiber.New(fiber.Config{
-		Views: html.NewFileSystem(http.FS(viewTemplates), ".gohtml"),
-	})
+type WebApp struct {
+	ledger ledger.Ledger
+	app    *fiber.App
 
-	configureRoutes(app, ledger*ledger.Ledger)
-
-	app.Listen(":3000")
-	return app
+	homeController   *home_views.HomeController
+	utxoController   *utxo_views.UTXOController
+	assetsController *assets_views.AssetsController
 }
 
-func configureRoutes(app *fiber.App, ledger *ledger.Ledger) {
-	app.Get("/", views.RenderIndex)
+func LaunchServer(
+	ledger ledger.Ledger,
+	stocksService assets.StockAssetsService,
+	cryptoService assets.CryptoAssetsService,
+	polygonService *polygon.PolygonService) *WebApp {
+	app := fiber.New(fiber.Config{
+		ViewsLayout: "layouts/main",
+		Views:       html.NewFileSystem(http.FS(viewTemplates), ".gohtml"),
+	})
+
+	webapp := &WebApp{
+		ledger: ledger,
+		app:    app,
+
+		homeController:   home_views.NewHomeController(ledger),
+		utxoController:   utxo_views.NewUTXOController(ledger, stocksService, polygonService),
+		assetsController: assets_views.NewAssetsController(stocksService, cryptoService, polygonService),
+	}
+	webapp.configureRoutes(app)
+
+	app.Listen(":3000")
+	return webapp
+}
+
+func (webapp *WebApp) Shutdown() {
+	webapp.app.Shutdown()
+}
+
+func (webapp WebApp) configureRoutes(app *fiber.App) {
+	webapp.homeController.ConfigureRoutes(app)
+	webapp.utxoController.ConfigureRoutes(app)
+	webapp.assetsController.ConfigureRoutes(app)
 }
