@@ -6,7 +6,6 @@ import (
 
 	"github.com/paletas/silvestre.finances/internal/pkg/feeds/polygon"
 	"github.com/paletas/silvestre.finances/internal/pkg/inmemory"
-
 	"github.com/paletas/silvestre.finances/internal/pkg/server/webapp"
 )
 
@@ -22,8 +21,9 @@ func main() {
 		stocksService := inmemory.NewInMemoryStockAssets()
 		cryptoService := inmemory.NewInMemoryCryptoAssets()
 		polygonService := polygon.NewPolygonService(polygonApiKey)
+		exchangeService := inmemory.NewInMemoryExchangeService()
 
-		app = webapp.LaunchServer(&ledger, stocksService, cryptoService, polygonService)
+		app = webapp.LaunchServer(&ledger, stocksService, cryptoService, polygonService, exchangeService)
 	} else {
 		panic("Not implemented")
 	}

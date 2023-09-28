@@ -1,35 +1,82 @@
+{{define "utxo/create/asset/stock"}}
+<div class="col-10">
+    {{$choosenAsset := .AssetTicker}}
+    <select name="assetTicker" class="form-select select-searchable" size="5" aria-label="Stock ticker selector">
+        <option value="" {{if not .AssetTicker}}selected{{end}}>Stock Ticker</option>
+        {{range .Assets}}
+            <option value="{{.Key}}" {{if eq $choosenAsset .Key}}selected{{end}}>{{.Description}}</option>
+        {{end}}
+    </select>
+</div>
+<div class="col-2 d-grid">
+    <a class="btn btn-outline-primary" href="/assets/create/stock?returnUrl={{urlquery "/utxo/create?assetType=STOCK"}}">+</a>
+</div>
+{{end}}
+
+{{define "utxo/create/asset/stock/exchange"}}
+{{$choosenExchange := .Exchange}}
+<select name="exchange" class="form-select" aria-label="Exchange selector">
+    <option value="" {{if not .Exchange}}selected{{end}}>Exchange</option>
+    {{range .Exchanges}}
+        <option value="{{.Key}}" {{if eq $choosenExchange .ID}}selected{{end}}>{{.Name}}</option>
+    {{end}}
+</select>
+{{end}}
+
+{{define "utxo/create/asset/crypto"}}
+<div class="col-10">
+    {{$choosenAsset := .AssetTicker}}
+    <select name="assetTicker" class="form-select select-searchable" size="5" aria-label="Crypto ticker selector">
+        <option value="" selected>Crypto Ticker</option>
+        {{range .Assets}}
+            <option value="{{.Key}}" {{if eq $choosenAsset .Key}}selected{{end}}>{{.Description}}</option>
+        {{end}}
+    </select>
+</div>
+<div class="col-2 d-grid">
+    <a class="btn btn-outline-primary" href="/assets/create/crypto?returnUrl={{urlquery "/utxo/create?assetType=CRYPTO"}}">+</a>
+</div>
+{{end}}
+
 {{define "utxo/create"}}
 
 <h1>New Transaction</h1>
 
 <form id="create-utxo-form">
    <div class="row">
-        <div class="col">
+        <div class="col-4">
             <select name="assetType" class="form-select" aria-label="Asset type selector"
-                hx-get="/utxo/create/asset" hx-target="#asset" hx-swap="innerHTML">
+                hx-post="/utxo/create" hx-target="body">
                 <option value="" {{if eq .AssetType "UNKNOWN"}} selected {{end}}>Asset Type</option>
                 <option value="STOCK" {{if eq .AssetType "STOCK"}} selected {{end}}>Stock</option>
                 <option value="CRYPTO" {{if eq .AssetType "CRYPTO"}} selected {{end}}>Crypto</option>
             </select>
         </div>
-        <div class="col">
+        <div class="col-8">
             <input id="date" type="date" class="form-control" aria-label="Transaction date">
         </div>
     </div>
     
-    <div class="row mt-3" id="asset">
-        {{template "utxo/create/asset" .}}
+    <div class="row mt-3">
+        {{if eq .AssetType "STOCK"}}
+        {{template "utxo/create/asset/stock" .}}
+        {{else if eq .AssetType "CRYPTO"}}
+        {{template "utxo/create/asset/crypto" .}}
+        {{end}}
     </div>
         
     <div class="row mt-3">
-        <div class="col">
+        <div class="col-4">
+            {{template "utxo/create/asset/stock/exchange" .}}
+        </div>
+        <div class="col-8">
             <input name="id" type="text" class="form-control" placeholder="Transaction ID" aria-label="Transaction ID"/>
         </div>
     </div>
 
     <div class="row mt-3">
         <div class="col">
-            <input name="quantity" type="number" class="form-control" placeholder="Quantity" aria-label="Quantity">
+            <input name="quantity" type="number" class="form-control" placeholder="Quantity" aria-label="Quantity" value="{{.Quantity}}" />
         </div>
         <div class="col">
             {{template "components/inputs/monetary" .CostBasisField }}

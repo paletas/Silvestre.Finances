@@ -10,13 +10,24 @@
         <script src="https://unpkg.com/hyperscript.org@0.9.11"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/styles/choices.min.css" />
         <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+        <style>
+            html[data-bs-theme=dark] .choices .choices__inner,
+            html[data-bs-theme=dark] .choices__list,
+            html[data-bs-theme=dark] .choices__input {
+                background-color: var(--bs-body-bg) !important;
+            }
+
+            html[data-bs-theme=dark] .choices__list--dropdown .choices__item--selectable.is-highlighted {
+                background-color: var(--bs-primary) !important;
+            }
+        </style>
     </head>
     <body class="container">
         {{embed}}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
         <script type="text/javascript">
             function ConfigureChoices(source) {                
-                source.querySelectorAll('select').forEach((select) => {
+                source.querySelectorAll('select.select-searchable').forEach((select) => {
                     var allowSearch = select.classList.contains('select-searchable');
 
                     new Choices(select, {
@@ -31,17 +42,6 @@
                 ConfigureChoices(evt.detail.elt);
             });
         </script>
-        <style>
-            html[data-bs-theme=dark] .choices .choices__inner,
-            html[data-bs-theme=dark] .choices__list,
-            html[data-bs-theme=dark] .choices__input {
-                background-color: var(--bs-body-bg) !important;
-            }
-
-            html[data-bs-theme=dark] .choices__list--dropdown .choices__item--selectable.is-highlighted {
-                background-color: var(--bs-primary) !important;
-            }
-        </style>
     </body>
 </html>
 {{end}}
