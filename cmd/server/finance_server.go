@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/paletas/silvestre.finances/internal/pkg/feeds/polygon"
-	"github.com/paletas/silvestre.finances/internal/pkg/inmemory"
+	"github.com/paletas/silvestre.finances/internal/pkg/infrastructure/inmemory"
 	"github.com/paletas/silvestre.finances/internal/pkg/server/webapp"
 )
 
