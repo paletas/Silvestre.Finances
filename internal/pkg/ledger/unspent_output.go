@@ -10,12 +10,13 @@ import (
 type UnspentOutput struct {
 	Id            string
 	TransactionId string
+	Exchange      string
 	Date          time.Time
 	AssetType     assets.AssetType
-	AssetId       string
+	AssetId       int64
 	Amount        float64
-	CostBasis     float64
-	Fees          float64
+	CostBasis     assets.Money
+	Fees          assets.Money
 	Spent         bool
 	SpentDate     time.Time
 	SpendFees     float64
@@ -23,19 +24,23 @@ type UnspentOutput struct {
 
 func CreateUnspentOutput(
 	transaction_id string,
+	exchange string,
 	date time.Time,
 	asset_type assets.AssetType,
-	asset_id string,
+	asset_id int64,
 	amount float64,
-	costBasis float64,
-	fees float64) UnspentOutput {
+	costBasis assets.Money,
+	fees assets.Money) UnspentOutput {
 
 	return UnspentOutput{
 		TransactionId: transaction_id,
+		Exchange:      exchange,
 		Date:          date,
 		AssetType:     asset_type,
 		AssetId:       asset_id,
 		Amount:        amount,
+		CostBasis:     costBasis,
+		Fees:          fees,
 		Spent:         false,
 		SpentDate:     time.Time{},
 	}

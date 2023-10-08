@@ -8,9 +8,13 @@
             "name": "Launch Server",
             "type": "go",
             "request": "launch",
-            "mode": "auto",
-            "program": "cmd/server/finance_server.go",
-            "args": ["-inmemory"]
+            "mode": "debug",
+            "program": "cmd/server/finance_server.go",            
+            "args": [],
+            "env": {
+                "CGO_ENABLED": "1",
+            },
+            "cwd": "${workspaceFolder}"
         }
         
     ]

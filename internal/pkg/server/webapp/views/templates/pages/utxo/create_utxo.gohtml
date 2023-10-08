@@ -1,10 +1,10 @@
 {{define "utxo/create/asset/stock"}}
 <div class="col-10">
-    {{$choosenAsset := .AssetTicker}}
-    <select name="assetTicker" class="form-select select-searchable" size="5" aria-label="Stock ticker selector">
-        <option value="" {{if not .AssetTicker}}selected{{end}}>Stock Ticker</option>
+    {{$choosenAsset := .AssetId}}
+    <select name="assetId" class="form-select select-searchable" size="5" aria-label="Stock ticker selector">
+        <option value="" {{if not .AssetId}}selected{{end}}>Stock Ticker</option>
         {{range .Assets}}
-            <option value="{{.Key}}" {{if eq $choosenAsset .Key}}selected{{end}}>{{.Description}}</option>
+            <option value="{{.ID}}" {{if eq $choosenAsset .ID}}selected{{end}}>{{.Description}}</option>
         {{end}}
     </select>
 </div>
@@ -18,18 +18,18 @@
 <select name="exchange" class="form-select" aria-label="Exchange selector">
     <option value="" {{if not .Exchange}}selected{{end}}>Exchange</option>
     {{range .Exchanges}}
-        <option value="{{.Key}}" {{if eq $choosenExchange .ID}}selected{{end}}>{{.Name}}</option>
+        <option value="{{.ID}}" {{if eq $choosenExchange .ID}}selected{{end}}>{{.Name}}</option>
     {{end}}
 </select>
 {{end}}
 
 {{define "utxo/create/asset/crypto"}}
 <div class="col-10">
-    {{$choosenAsset := .AssetTicker}}
-    <select name="assetTicker" class="form-select select-searchable" size="5" aria-label="Crypto ticker selector">
-        <option value="" selected>Crypto Ticker</option>
+    {{$choosenAsset := .AssetId}}
+    <select name="assetId" class="form-select select-searchable" size="5" aria-label="Crypto ticker selector">
+        <option value="" {{if not .AssetId}}selected{{end}}>Crypto Ticker</option>
         {{range .Assets}}
-            <option value="{{.Key}}" {{if eq $choosenAsset .Key}}selected{{end}}>{{.Description}}</option>
+            <option value="{{.ID}}" {{if eq $choosenAsset .ID}}selected{{end}}>{{.Description}}</option>
         {{end}}
     </select>
 </div>
@@ -90,7 +90,7 @@
         <div class="col d-grid">
             <div class="btn-group row">
                 <a href="/" class="btn btn-outline-warning col-6">Cancel</a>
-                <button name="action" value="create" class="btn btn-primary col-6" type="submit">Create</button>
+                <button hx-post="/utxo/create" name="action" value="create" class="btn btn-primary col-6" type="submit">Create</button>
             </div>
         </div>
     </div>

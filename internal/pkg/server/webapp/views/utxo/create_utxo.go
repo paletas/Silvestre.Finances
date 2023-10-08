@@ -2,6 +2,7 @@ package utxo
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -38,14 +39,14 @@ func (view *CreateUtxoView) ConfigureRoutes(app *fiber.App) {
 
 func (view *CreateUtxoView) Render(c *fiber.Ctx) error {
 	assetType := c.Query("assetType")
-	assetTicker := c.Query("assetTicker")
+	assetId := c.QueryInt("assetId")
 
 	if assetType == "" {
 		assetType = "UNKNOWN"
 	}
 
 	var existingAssets []struct {
-		Key         string
+		ID          int64
 		Description string
 	}
 
@@ -66,10 +67,10 @@ func (view *CreateUtxoView) Render(c *fiber.Ctx) error {
 
 			for _, asset := range stockAssets {
 				existingAssets = append(existingAssets, struct {
-					Key         string
+					ID          int64
 					Description string
 				}{
-					Key:         asset.Ticker,
+					ID:          asset.Id,
 					Description: fmt.Sprintf("%s (%s)", asset.Asset.Name, asset.Ticker),
 				})
 			}
@@ -82,10 +83,10 @@ func (view *CreateUtxoView) Render(c *fiber.Ctx) error {
 	}
 
 	return c.Render("utxo/create", fiber.Map{
-		"AssetType":   assetType,
-		"AssetTicker": assetTicker,
-		"Assets":      existingAssets,
-		"Exchanges":   exchanges,
+		"AssetType": assetType,
+		"AssetId":   assetId,
+		"Assets":    existingAssets,
+		"Exchanges": exchanges,
 		"CostBasisField": fiber.Map{
 			"InputName":           "costBasis",
 			"InputPlaceholder":    "Cost Basis",
@@ -108,11 +109,16 @@ func (view *CreateUtxoView) Render(c *fiber.Ctx) error {
 }
 
 type CreateUtxoFormData struct {
-	Action      string `form:"action"`
-	AssetType   string `form:"assetType"`
-	AssetTicker string `form:"assetTicker"`
-	Quantity    string `form:"quantity"`
-	Exchange    string `form:"exchange"`
+	Action            string  `form:"action"`
+	AssetType         string  `form:"assetType"`
+	AssetId           int64   `form:"assetId"`
+	Quantity          float64 `form:"quantity"`
+	Exchange          string  `form:"exchange"`
+	TransactionId     string  `form:"transactionId"`
+	CostBasis         float64 `form:"costBasis"`
+	CostBasisCurrency string  `form:"costBasisCurrency"`
+	Fees              float64 `form:"fees"`
+	FeesCurrency      string  `form:"feesCurrency"`
 }
 
 func (view *CreateUtxoView) RenderPost(c *fiber.Ctx) error {
@@ -123,7 +129,7 @@ func (view *CreateUtxoView) RenderPost(c *fiber.Ctx) error {
 	}
 
 	var existingAssets []struct {
-		Key         string
+		ID          int64
 		Description string
 	}
 
@@ -131,14 +137,25 @@ func (view *CreateUtxoView) RenderPost(c *fiber.Ctx) error {
 		if formData.AssetType == "" {
 			return fmt.Errorf("asset type is required")
 		}
-
-		if formData.AssetTicker == "" {
-			return fmt.Errorf("asset ticker is required")
+		if formData.Exchange == "" {
+			return fmt.Errorf("exchange is required")
 		}
 
-		if formData.Quantity == "" {
-			return fmt.Errorf("quantity is required")
+		err := view.ledger.AddUnspentOutput(
+			formData.TransactionId,
+			formData.Exchange,
+			time.Now(),
+			assets.AssetType(formData.AssetType),
+			formData.AssetId,
+			formData.Quantity,
+			assets.Money{Amount: formData.CostBasis, Currency: formData.CostBasisCurrency},
+			assets.Money{Amount: formData.Fees, Currency: formData.FeesCurrency})
+
+		if err != nil {
+			return err
 		}
+
+		return c.Redirect("/")
 	} else {
 		var exchanges []exchanges.Exchange
 		if formData.AssetType != "UNKNOWN" {
@@ -156,10 +173,10 @@ func (view *CreateUtxoView) RenderPost(c *fiber.Ctx) error {
 
 				for _, asset := range stockAssets {
 					existingAssets = append(existingAssets, struct {
-						Key         string
+						ID          int64
 						Description string
 					}{
-						Key:         asset.Ticker,
+						ID:          asset.Id,
 						Description: fmt.Sprintf("%s (%s)", asset.Asset.Name, asset.Ticker),
 					})
 				}
@@ -172,11 +189,11 @@ func (view *CreateUtxoView) RenderPost(c *fiber.Ctx) error {
 		}
 
 		return c.Render("utxo/create", fiber.Map{
-			"AssetType":   formData.AssetType,
-			"AssetTicker": formData.AssetTicker,
-			"Assets":      existingAssets,
-			"Exchanges":   exchanges,
-			"Quantity":    formData.Quantity,
+			"AssetType": formData.AssetType,
+			"AssetId":   formData.AssetId,
+			"Assets":    existingAssets,
+			"Exchanges": exchanges,
+			"Quantity":  formData.Quantity,
 			"CostBasisField": fiber.Map{
 				"InputName":           "costBasis",
 				"InputPlaceholder":    "Cost Basis",
@@ -197,6 +214,4 @@ func (view *CreateUtxoView) RenderPost(c *fiber.Ctx) error {
 			},
 		})
 	}
-
-	return nil
 }

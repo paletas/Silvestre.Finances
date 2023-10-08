@@ -8,6 +8,7 @@ import (
 
 type StocksFeedService interface {
 	SearchStock(ticker string) ([]*assets.StockAsset, error)
+	GetStockFromTicker(ticker string) (*assets.StockAsset, error)
 
 	GetQuoteAtDate(ticker string, date time.Time) (*StockQuote, error)
 }

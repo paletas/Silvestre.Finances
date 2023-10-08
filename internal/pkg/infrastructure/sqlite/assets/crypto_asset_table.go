@@ -1,6 +1,7 @@
-package database
+package assets
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/paletas/silvestre.finances/internal/pkg/assets"
@@ -17,7 +18,27 @@ func NewCryptoAssetTable(db *sql.DB) *CryptoAssetTable {
 }
 
 func (a *CryptoAssetTable) Create(asset *assets.CryptoAsset) error {
-	_, err := a.db.Exec("EXEC dbo.CreateCryptoAsset @Name = $1, @Ticker = $2", asset.Asset.Name, asset.Ticker)
+	conn, err := a.db.Conn(context.Background())
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	_, err = conn.ExecContext(context.Background(), `
+		PRAGMA temp_store = 2;
+		CREATE TEMP TABLE Variables(AssetID INTEGER);
+
+		INSERT INTO Asset (AssetType, Name)
+		VALUES ('Crypto', ?);
+
+		INSERT INTO Variables(AssetID)
+		VALUES (last_insert_rowid());
+
+		INSERT INTO CryptoAsset (ID, Ticker)
+		SELECT AssetID, ?
+		FROM Variables;
+
+		SELECT AssetID FROM Variables;`, asset.Asset.Name, asset.Ticker)
 	if err != nil {
 		return err
 	}
@@ -25,7 +46,17 @@ func (a *CryptoAssetTable) Create(asset *assets.CryptoAsset) error {
 }
 
 func (a *CryptoAssetTable) GetByTicker(ticker string) (*assets.CryptoAsset, error) {
-	queryResult, err := a.db.Query("EXEC dbo.GetCryptoAssetByTicker @Ticker = $1", ticker)
+	conn, err := a.db.Conn(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	queryResult, err := conn.QueryContext(context.Background(), `
+		SELECT A.ID, A.Name, C.Ticker
+		FROM Asset A
+		INNER JOIN CryptoAsset C ON C.ID = A.ID
+		WHERE C.Ticker = ?`, ticker)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +72,16 @@ func (a *CryptoAssetTable) GetByTicker(ticker string) (*assets.CryptoAsset, erro
 }
 
 func (a *CryptoAssetTable) ListAll() ([]*assets.CryptoAsset, error) {
-	queryResult, err := a.db.Query("EXEC dbo.ListAllCryptoAssets")
+	conn, err := a.db.Conn(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	queryResult, err := conn.QueryContext(context.Background(), `
+		SELECT A.ID, A.Name, C.Ticker
+		FROM Asset A
+		INNER JOIN CryptoAsset C ON C.ID = A.ID`)
 	if err != nil {
 		return nil, err
 	}

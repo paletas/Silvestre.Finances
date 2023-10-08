@@ -1,7 +1,7 @@
 {{define "components/inputs/monetary"}}
 
 <div class="input-group">
-    <input name="{{.InputName}}" type="number" class="form-control" placeholder="{{.InputPlaceholder}}" aria-label="{{.InputLabel}}" />
+    <input name="{{.InputName}}" type="number" class="form-control" placeholder="{{.InputPlaceholder}}" aria-label="{{.InputLabel}}" step=".01" />
     <select name="{{.CurrencyName}}" type="number" class="form-control select-searchable" placeholder="{{.CurrencyPlaceholder}}" aria-label="{{.CurrencyLabel}}">
         <option value="">Unknown</option>
         {{range .CurrencyOptions}}

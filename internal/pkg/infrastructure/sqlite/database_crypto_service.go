@@ -1,4 +1,4 @@
-package database
+package sqlite
 
 import (
 	"github.com/paletas/silvestre.finances/internal/pkg/assets"
@@ -9,17 +9,17 @@ type DatabaseCryptoService struct {
 	assetTable *database.CryptoAssetTable
 }
 
-func NewDatabaseCryptoService(assetTable *database.CryptoAssetTable) *DatabaseCryptoService {
+func NewDatabaseCryptoService(assetsDb *database.AssetsDB) *DatabaseCryptoService {
 	return &DatabaseCryptoService{
-		assetTable: assetTable,
+		assetTable: assetsDb.CryptoAssetTable,
 	}
 }
 
-func (s *DatabaseCryptoService) Create(asset *assets.CryptoAsset) error {
+func (s *DatabaseCryptoService) CreateAsset(asset *assets.CryptoAsset) error {
 	return s.assetTable.Create(asset)
 }
 
-func (s *DatabaseCryptoService) GetByTicker(ticker string) (*assets.CryptoAsset, error) {
+func (s *DatabaseCryptoService) GetAssetByTicker(ticker string) (*assets.CryptoAsset, error) {
 	asset, err := s.assetTable.GetByTicker(ticker)
 	if err != nil {
 		return nil, err

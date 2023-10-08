@@ -8,7 +8,7 @@ const (
 )
 
 type Asset struct {
-	Id   string
+	Id   int64
 	Name string
 	Type AssetType
 }

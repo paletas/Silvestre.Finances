@@ -67,12 +67,9 @@ func (view *CreateAssetStockView) RenderPost(c *fiber.Ctx) error {
 				return errors.New("ticker is required")
 			}
 
-			newAsset := &assets.StockAsset{
-				Asset: assets.Asset{
-					Type: assets.StockAssetType,
-					Name: formData.StockName,
-				},
-				Ticker: formData.StockTicker,
+			newAsset, err := view.feedService.GetStockFromTicker(formData.StockTicker)
+			if err != nil {
+				return err
 			}
 
 			err = view.assetsService.CreateAsset(newAsset)

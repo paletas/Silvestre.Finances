@@ -1,0 +1,40 @@
+--- Release 1
+----- Tables
+CREATE TABLE IF NOT EXISTS Asset
+(
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    AssetType TEXT NOT NULL CHECK (AssetType IN ('Stock', 'Crypto')),
+    Name TEXT NOT NULL,
+    IsActive BIT NOT NULL DEFAULT (1)
+);
+
+CREATE TABLE IF NOT EXISTS StockAsset
+(
+    ID INTEGER PRIMARY KEY NOT NULL,
+    Ticker TEXT NOT NULL,
+    Exchange TEXT NOT NULL,
+    Currency TEXT NOT NULL,
+    FOREIGN KEY (ID) REFERENCES Asset (ID)
+);
+
+CREATE TABLE IF NOT EXISTS CryptoAsset
+(
+    ID INTEGER PRIMARY KEY NOT NULL,
+    Ticker TEXT NOT NULL,
+    FOREIGN KEY (ID) REFERENCES Asset (ID)
+);
+
+CREATE TABLE IF NOT EXISTS AssetPrice
+(
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    AssetID INTEGER NOT NULL,
+    Price DECIMAL(10, 2) NOT NULL,
+    Currency TEXT NOT NULL,
+    Date DATE NOT NULL,
+    FOREIGN KEY (AssetID) REFERENCES Asset (ID)
+);
+
+----- Indexes
+CREATE UNIQUE INDEX IF NOT EXISTS IX_StockAsset_Ticker ON StockAsset (Ticker);
+CREATE UNIQUE INDEX IF NOT EXISTS IX_CryptoAsset_Ticker ON CryptoAsset (Ticker);
+CREATE UNIQUE INDEX IF NOT EXISTS IX_AssetPrice_AssetID_Date ON AssetPrice (AssetID, Date);

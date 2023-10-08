@@ -1,6 +1,7 @@
-package database
+package assets
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/paletas/silvestre.finances/internal/pkg/assets"
@@ -17,31 +18,46 @@ func NewStockAssetTable(db *sql.DB) *StockAssetTable {
 }
 
 func (a *StockAssetTable) Create(asset *assets.StockAsset) error {
-	_, err := a.db.Exec("EXEC dbo.CreateStockAsset @Name = $1, @Ticker = $2, @Exchange = $3, @Currency = $4", asset.Asset.Name, asset.Ticker, asset.Exchange, asset.Currency)
+	conn, err := a.db.Conn(context.Background())
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
+
+	_, err = conn.ExecContext(context.Background(), `
+		PRAGMA temp_store = 2;
+		CREATE TEMP TABLE Variables(AssetID INTEGER);
+
+		INSERT INTO Asset (AssetType, Name)
+		VALUES ('Stock', ?);
+
+		INSERT INTO Variables(AssetID)
+		VALUES (last_insert_rowid());
+
+		INSERT INTO StockAsset (ID, Ticker, Exchange, Currency)
+		SELECT AssetID, ?, ?, ?
+		FROM Variables;
+
+		SELECT AssetID FROM Variables;`, asset.Asset.Name, asset.Ticker, asset.Exchange, asset.Currency)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (a *StockAssetTable) GetByTicker(ticker string) (*assets.StockAsset, error) {
-	queryResult, err := a.db.Query("EXEC dbo.GetStockAssetByTicker @Ticker = $1", ticker)
+	conn, err := a.db.Conn(context.Background())
 	if err != nil {
 		return nil, err
 	}
+	defer conn.Close()
 
-	var asset assets.StockAsset
-	queryResult.Next()
-	err = queryResult.Scan(&asset.Asset.Id, &asset.Asset.Name, &asset.Ticker, &asset.Exchange, &asset.Currency)
-	if err != nil {
-		return nil, err
-	}
-
-	return &asset, nil
-}
-
-func (a *StockAssetTable) GetByISIN(isin string) (*assets.StockAsset, error) {
-	queryResult, err := a.db.Query("EXEC dbo.GetStockAssetByISIN @ISIN = $1", isin)
+	queryResult, err := conn.QueryContext(context.Background(), `
+		SELECT A.ID, A.Name, S.Ticker, S.Exchange, S.Currency
+		FROM Asset A
+		INNER JOIN StockAsset S ON S.ID = A.ID
+		WHERE S.Ticker = ?`, ticker)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +73,16 @@ func (a *StockAssetTable) GetByISIN(isin string) (*assets.StockAsset, error) {
 }
 
 func (a *StockAssetTable) ListAll() ([]*assets.StockAsset, error) {
-	queryResult, err := a.db.Query("EXEC dbo.ListAllStockAssets")
+	conn, err := a.db.Conn(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	queryResult, err := conn.QueryContext(context.Background(), `
+		SELECT A.ID, A.Name, S.Ticker, S.Exchange, S.Currency
+		FROM Asset A
+		INNER JOIN StockAsset S ON S.ID = A.ID`)
 	if err != nil {
 		return nil, err
 	}
