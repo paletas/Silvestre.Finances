@@ -5,18 +5,17 @@ import (
 	"time"
 
 	"github.com/paletas/silvestre.finances/internal/pkg/assets"
-	database "github.com/paletas/silvestre.finances/internal/pkg/infrastructure/sqlite/ledger"
 	"github.com/paletas/silvestre.finances/internal/pkg/ledger"
 )
 
 type DatabaseLedgerService struct {
-	ledgerTable   *database.LedgerTable
+	db            *FinancesDb
 	assetsService assets.AssetsService
 }
 
-func NewDatabaseLedgerService(ledgerDb *database.LedgerDb, assetsService assets.AssetsService) *DatabaseLedgerService {
+func NewDatabaseLedgerService(db *FinancesDb, assetsService assets.AssetsService) *DatabaseLedgerService {
 	return &DatabaseLedgerService{
-		ledgerTable:   ledgerDb.LedgerTable,
+		db:            db,
 		assetsService: assetsService,
 	}
 }
@@ -31,9 +30,10 @@ func (s DatabaseLedgerService) AddUnspentOutput(
 	costBasis assets.Money,
 	fees assets.Money) error {
 
-	return s.ledgerTable.AddUnspentOutput(
+	return s.db.LedgerTable.AddUnspentOutput(
 		transaction_id,
-		exchange, date,
+		exchange,
+		date,
 		string(asset_type),
 		asset_id,
 		amount,
@@ -44,11 +44,11 @@ func (s DatabaseLedgerService) AddUnspentOutput(
 }
 
 func (s DatabaseLedgerService) SpendOutput(transaction_id string, date time.Time, fees float64) error {
-	return s.ledgerTable.SpendOutput(transaction_id, date, fees)
+	return s.db.LedgerTable.SpendOutput(transaction_id, date, fees)
 }
 
 func (s DatabaseLedgerService) GetTotalWealth() (float64, error) {
-	utxos, err := s.ledgerTable.GetUnspentOutputs()
+	utxos, err := s.db.LedgerTable.GetUnspentOutputs()
 	if err != nil {
 		return 0.0, err
 	}
@@ -73,9 +73,9 @@ func (s DatabaseLedgerService) GetTotalWealth() (float64, error) {
 }
 
 func (s DatabaseLedgerService) GetUnspentOutputs() ([]ledger.UnspentOutput, error) {
-	return s.ledgerTable.GetUnspentOutputs()
+	return s.db.LedgerTable.GetUnspentOutputs()
 }
 
 func (s DatabaseLedgerService) GetUnspentOutputsByAssetType(assetType assets.AssetType) ([]ledger.UnspentOutput, error) {
-	return s.ledgerTable.GetUnspentOutputsByAssetType(string(assetType))
+	return s.db.LedgerTable.GetUnspentOutputsByAssetType(string(assetType))
 }

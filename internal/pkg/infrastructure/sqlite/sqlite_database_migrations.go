@@ -1,4 +1,4 @@
-package ledger
+package sqlite
 
 import (
 	"context"
@@ -47,7 +47,7 @@ var (
 	migrationScripts embed.FS
 )
 
-func (ledgerDb LedgerDb) applyMigrations() error {
+func (ledgerDb FinancesDb) applyMigrations() error {
 	log.Println("Applying migrations...")
 
 	migrations, err := setupMigrations()

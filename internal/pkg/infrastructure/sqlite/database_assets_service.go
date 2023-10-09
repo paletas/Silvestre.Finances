@@ -4,21 +4,20 @@ import (
 	"time"
 
 	"github.com/paletas/silvestre.finances/internal/pkg/assets"
-	database "github.com/paletas/silvestre.finances/internal/pkg/infrastructure/sqlite/assets"
 )
 
 type DatabaseAssetsService struct {
-	assetPriceTable *database.AssetPriceTable
+	db *FinancesDb
 }
 
-func NewDatabaseAssetsService(assetsDb *database.AssetsDB) *DatabaseAssetsService {
+func NewDatabaseAssetsService(db *FinancesDb) *DatabaseAssetsService {
 	return &DatabaseAssetsService{
-		assetPriceTable: assetsDb.AssetPriceTable,
+		db: db,
 	}
 }
 
 func (s *DatabaseAssetsService) GetAssetById(id int64) (*assets.Asset, error) {
-	asset, err := s.assetPriceTable.GetAssetById(id)
+	asset, err := s.db.AssetPriceTable.GetAssetById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +25,7 @@ func (s *DatabaseAssetsService) GetAssetById(id int64) (*assets.Asset, error) {
 }
 
 func (s *DatabaseAssetsService) GetAssetLatestPrice(asset *assets.Asset) (*assets.Money, error) {
-	price, currency, err := s.assetPriceTable.GetLatestPrice(asset)
+	price, currency, err := s.db.AssetPriceTable.GetLatestPrice(asset)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +33,7 @@ func (s *DatabaseAssetsService) GetAssetLatestPrice(asset *assets.Asset) (*asset
 }
 
 func (s *DatabaseAssetsService) GetAssetPriceAt(asset *assets.Asset, timestamp time.Time) (*assets.Money, error) {
-	price, currency, err := s.assetPriceTable.GetPriceAt(asset, timestamp)
+	price, currency, err := s.db.AssetPriceTable.GetPriceAt(asset, timestamp)
 	if err != nil {
 		return nil, err
 	}
@@ -42,5 +41,5 @@ func (s *DatabaseAssetsService) GetAssetPriceAt(asset *assets.Asset, timestamp t
 }
 
 func (s *DatabaseAssetsService) StoreAssetPrice(asset *assets.Asset, price assets.Money, timestamp time.Time) error {
-	return s.assetPriceTable.RegisterPrice(asset, price.Amount, price.Currency, timestamp)
+	return s.db.AssetPriceTable.RegisterPrice(asset, price.Amount, price.Currency, timestamp)
 }

@@ -1,4 +1,4 @@
-package assets
+package tables
 
 import (
 	"context"
@@ -7,17 +7,17 @@ import (
 	"github.com/paletas/silvestre.finances/internal/pkg/assets"
 )
 
-type CryptoAssetTable struct {
+type StockAssetTable struct {
 	db *sql.DB
 }
 
-func NewCryptoAssetTable(db *sql.DB) *CryptoAssetTable {
-	return &CryptoAssetTable{
+func NewStockAssetTable(db *sql.DB) *StockAssetTable {
+	return &StockAssetTable{
 		db: db,
 	}
 }
 
-func (a *CryptoAssetTable) Create(asset *assets.CryptoAsset) error {
+func (a *StockAssetTable) Create(asset *assets.StockAsset) error {
 	conn, err := a.db.Conn(context.Background())
 	if err != nil {
 		return err
@@ -29,23 +29,26 @@ func (a *CryptoAssetTable) Create(asset *assets.CryptoAsset) error {
 		CREATE TEMP TABLE Variables(AssetID INTEGER);
 
 		INSERT INTO Asset (AssetType, Name)
-		VALUES ('Crypto', ?);
+		VALUES ('Stock', ?);
 
 		INSERT INTO Variables(AssetID)
 		VALUES (last_insert_rowid());
 
-		INSERT INTO CryptoAsset (ID, Ticker)
-		SELECT AssetID, ?
+		INSERT INTO StockAsset (ID, Ticker, Exchange, Currency)
+		SELECT AssetID, ?, ?, ?
 		FROM Variables;
 
-		SELECT AssetID FROM Variables;`, asset.Asset.Name, asset.Ticker)
+		SELECT AssetID FROM Variables;
+		
+		DROP TABLE Variables;`, asset.Asset.Name, asset.Ticker, asset.Exchange, asset.Currency)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
-func (a *CryptoAssetTable) GetByTicker(ticker string) (*assets.CryptoAsset, error) {
+func (a *StockAssetTable) GetByTicker(ticker string) (*assets.StockAsset, error) {
 	conn, err := a.db.Conn(context.Background())
 	if err != nil {
 		return nil, err
@@ -53,17 +56,17 @@ func (a *CryptoAssetTable) GetByTicker(ticker string) (*assets.CryptoAsset, erro
 	defer conn.Close()
 
 	queryResult, err := conn.QueryContext(context.Background(), `
-		SELECT A.ID, A.Name, C.Ticker
+		SELECT A.ID, A.Name, S.Ticker, S.Exchange, S.Currency
 		FROM Asset A
-		INNER JOIN CryptoAsset C ON C.ID = A.ID
-		WHERE C.Ticker = ?`, ticker)
+		INNER JOIN StockAsset S ON S.ID = A.ID
+		WHERE S.Ticker = ?`, ticker)
 	if err != nil {
 		return nil, err
 	}
 
-	var asset assets.CryptoAsset
+	var asset assets.StockAsset
 	queryResult.Next()
-	err = queryResult.Scan(&asset.Asset.Id, &asset.Asset.Name, &asset.Ticker)
+	err = queryResult.Scan(&asset.Asset.Id, &asset.Asset.Name, &asset.Ticker, &asset.Exchange, &asset.Currency)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +74,7 @@ func (a *CryptoAssetTable) GetByTicker(ticker string) (*assets.CryptoAsset, erro
 	return &asset, nil
 }
 
-func (a *CryptoAssetTable) ListAll() ([]*assets.CryptoAsset, error) {
+func (a *StockAssetTable) ListAll() ([]*assets.StockAsset, error) {
 	conn, err := a.db.Conn(context.Background())
 	if err != nil {
 		return nil, err
@@ -79,17 +82,17 @@ func (a *CryptoAssetTable) ListAll() ([]*assets.CryptoAsset, error) {
 	defer conn.Close()
 
 	queryResult, err := conn.QueryContext(context.Background(), `
-		SELECT A.ID, A.Name, C.Ticker
+		SELECT A.ID, A.Name, S.Ticker, S.Exchange, S.Currency
 		FROM Asset A
-		INNER JOIN CryptoAsset C ON C.ID = A.ID`)
+		INNER JOIN StockAsset S ON S.ID = A.ID`)
 	if err != nil {
 		return nil, err
 	}
 
-	assets_arr := make([]*assets.CryptoAsset, 0)
+	assets_arr := make([]*assets.StockAsset, 0)
 	for queryResult.Next() {
-		var asset assets.CryptoAsset
-		err := queryResult.Scan(&asset.Asset.Id, &asset.Asset.Name, &asset.Ticker)
+		var asset assets.StockAsset
+		err := queryResult.Scan(&asset.Asset.Id, &asset.Asset.Name, &asset.Ticker, &asset.Exchange, &asset.Currency)
 		if err != nil {
 			return nil, err
 		}

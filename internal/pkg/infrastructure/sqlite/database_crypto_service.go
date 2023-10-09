@@ -2,25 +2,24 @@ package sqlite
 
 import (
 	"github.com/paletas/silvestre.finances/internal/pkg/assets"
-	database "github.com/paletas/silvestre.finances/internal/pkg/infrastructure/sqlite/assets"
 )
 
 type DatabaseCryptoService struct {
-	assetTable *database.CryptoAssetTable
+	db *FinancesDb
 }
 
-func NewDatabaseCryptoService(assetsDb *database.AssetsDB) *DatabaseCryptoService {
+func NewDatabaseCryptoService(db *FinancesDb) *DatabaseCryptoService {
 	return &DatabaseCryptoService{
-		assetTable: assetsDb.CryptoAssetTable,
+		db: db,
 	}
 }
 
 func (s *DatabaseCryptoService) CreateAsset(asset *assets.CryptoAsset) error {
-	return s.assetTable.Create(asset)
+	return s.db.CryptoAssetTable.Create(asset)
 }
 
 func (s *DatabaseCryptoService) GetAssetByTicker(ticker string) (*assets.CryptoAsset, error) {
-	asset, err := s.assetTable.GetByTicker(ticker)
+	asset, err := s.db.CryptoAssetTable.GetByTicker(ticker)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +27,7 @@ func (s *DatabaseCryptoService) GetAssetByTicker(ticker string) (*assets.CryptoA
 }
 
 func (s *DatabaseCryptoService) ListAll() ([]*assets.CryptoAsset, error) {
-	assets_arr, err := s.assetTable.ListAll()
+	assets_arr, err := s.db.CryptoAssetTable.ListAll()
 	if err != nil {
 		return nil, err
 	}

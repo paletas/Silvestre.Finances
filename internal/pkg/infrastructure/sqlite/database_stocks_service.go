@@ -2,25 +2,24 @@ package sqlite
 
 import (
 	"github.com/paletas/silvestre.finances/internal/pkg/assets"
-	database "github.com/paletas/silvestre.finances/internal/pkg/infrastructure/sqlite/assets"
 )
 
 type DatabaseStocksService struct {
-	assetTable *database.StockAssetTable
+	db *FinancesDb
 }
 
-func NewDatabaseStocksService(assetsDb *database.AssetsDB) *DatabaseStocksService {
+func NewDatabaseStocksService(db *FinancesDb) *DatabaseStocksService {
 	return &DatabaseStocksService{
-		assetTable: assetsDb.StockAssetTable,
+		db: db,
 	}
 }
 
 func (s *DatabaseStocksService) CreateAsset(asset *assets.StockAsset) error {
-	return s.assetTable.Create(asset)
+	return s.db.StockAssetTable.Create(asset)
 }
 
 func (s *DatabaseStocksService) GetAssetByTicker(ticker string) (*assets.StockAsset, error) {
-	asset, err := s.assetTable.GetByTicker(ticker)
+	asset, err := s.db.StockAssetTable.GetByTicker(ticker)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +28,7 @@ func (s *DatabaseStocksService) GetAssetByTicker(ticker string) (*assets.StockAs
 }
 
 func (s *DatabaseStocksService) ListAll() ([]*assets.StockAsset, error) {
-	assets_arr, err := s.assetTable.ListAll()
+	assets_arr, err := s.db.StockAssetTable.ListAll()
 	if err != nil {
 		return nil, err
 	}

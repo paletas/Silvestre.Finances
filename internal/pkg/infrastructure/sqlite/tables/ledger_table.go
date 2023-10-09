@@ -1,4 +1,4 @@
-package ledger
+package tables
 
 import (
 	"context"
@@ -46,7 +46,7 @@ func (l *LedgerTable) AddUnspentOutput(
 		return err
 	}
 
-	_, err = stmt.Exec(transaction_id, exchange, date, asset_type, asset_id, amount, costBasis, fees)
+	_, err = stmt.Exec(transaction_id, exchange, date, asset_type, asset_id, amount, costBasis, costBasisCurrency, fees, feesCurrency)
 	if err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func (l *LedgerTable) GetUnspentOutputs() ([]ledger.UnspentOutput, error) {
 	}
 	defer conn.Close()
 
-	rows, err := conn.QueryContext(context.Background(), "SELECT transaction_id, date, asset_type, asset_id, amount, cost_basis, fees FROM ledger WHERE spent = 0")
+	rows, err := conn.QueryContext(context.Background(), "SELECT transaction_id, date, asset_type, asset_id, amount, cost_basis, cost_basis_currency, fees, fees_currency FROM ledger WHERE spent = 0")
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func (l *LedgerTable) GetUnspentOutputs() ([]ledger.UnspentOutput, error) {
 	utxos := make([]ledger.UnspentOutput, 0)
 	for rows.Next() {
 		var utxo ledger.UnspentOutput
-		err := rows.Scan(&utxo.TransactionId, &utxo.Date, &utxo.AssetType, &utxo.AssetId, &utxo.Amount, &utxo.CostBasis, &utxo.Fees)
+		err := rows.Scan(&utxo.TransactionId, &utxo.Date, &utxo.AssetType, &utxo.AssetId, &utxo.Amount, &utxo.CostBasis.Amount, &utxo.CostBasis.Currency, &utxo.Fees.Amount, &utxo.Fees.Currency)
 		if err != nil {
 			return nil, err
 		}
