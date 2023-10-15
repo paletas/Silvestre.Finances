@@ -39,7 +39,6 @@ CREATE TABLE IF NOT EXISTS Ledger (
     transaction_id VARCHAR(255) NOT NULL,
     exchange VARCHAR(255) NOT NULL,
     date DATE NOT NULL,
-    asset_type VARCHAR(255) NOT NULL CHECK (asset_type IN ('CRYPTO', 'STOCK')),
     asset_id INTEGER NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
     cost_basis DECIMAL(10, 2) NOT NULL,

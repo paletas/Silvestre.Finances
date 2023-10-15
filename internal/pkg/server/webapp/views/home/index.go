@@ -7,14 +7,19 @@ import (
 
 	"github.com/paletas/silvestre.finances/internal/pkg/assets"
 	"github.com/paletas/silvestre.finances/internal/pkg/ledger"
+	utxo_partials "github.com/paletas/silvestre.finances/internal/pkg/server/webapp/views/utxo/partials"
 )
 
 type IndexView struct {
-	ledger ledger.Ledger
+	ledger        ledger.Ledger
+	assetsService assets.AssetsService
 }
 
-func NewIndexView(ledger ledger.Ledger) *IndexView {
-	return &IndexView{ledger: ledger}
+func NewIndexView(ledger ledger.Ledger, assetsService assets.AssetsService) *IndexView {
+	return &IndexView{
+		ledger:        ledger,
+		assetsService: assetsService,
+	}
 }
 
 func (view *IndexView) ConfigureRoutes(app *fiber.App) {
@@ -30,20 +35,9 @@ func (view *IndexView) Render(c *fiber.Ctx) error {
 		return error
 	}
 
-	var unspentOutputs []ledger.UnspentOutput
-	if assetType == "" {
-		assetType = "ALL"
-		unspentOutputs, error = view.ledger.GetUnspentOutputs()
-		if error != nil {
-			return error
-		}
-	} else {
-		c.Response().Header.Set("HX-Push-Url", fmt.Sprintf("/?assetType=%s", assetType))
-
-		unspentOutputs, error = view.ledger.GetUnspentOutputsByAssetType(assets.AssetType(assetType))
-		if error != nil {
-			return error
-		}
+	unspentOutputs, error := view.getUnspentOutputs(assetType)
+	if error != nil {
+		return error
 	}
 
 	return c.Render("home/index", fiber.Map{
@@ -60,7 +54,7 @@ func (view *IndexView) RenderUtxoList(c *fiber.Ctx) error {
 		return c.SendStatus(400)
 	}
 
-	unspentOutputs, error := view.ledger.GetUnspentOutputsByAssetType(assets.AssetType(assetType))
+	unspentOutputs, error := view.getUnspentOutputs(assetType)
 	if error != nil {
 		return error
 	}
@@ -70,4 +64,40 @@ func (view *IndexView) RenderUtxoList(c *fiber.Ctx) error {
 		"Filter": assetType,
 		"Items":  unspentOutputs,
 	}, "")
+}
+
+func (view *IndexView) getUnspentOutputs(assetType string) ([]utxo_partials.UnspentOutputViewModel, error) {
+	var unspentOutputs []ledger.UnspentOutput
+	var err error
+	if assetType == "" || assetType == "ALL" {
+		unspentOutputs, err = view.ledger.GetUnspentOutputs()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		unspentOutputs, err = view.ledger.GetUnspentOutputsByAssetType(assets.AssetType(assetType))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var unspentOutputsViewModel []utxo_partials.UnspentOutputViewModel
+	for _, unspentOutput := range unspentOutputs {
+		assetPrice, err := view.assetsService.GetAssetLatestPriceById(unspentOutput.AssetId)
+		if err != nil {
+			return nil, err
+		}
+
+		unspentOutputsViewModel = append(unspentOutputsViewModel, utxo_partials.UnspentOutputViewModel{
+			Id:            unspentOutput.Id,
+			TransactionId: unspentOutput.TransactionId,
+			Exchange:      unspentOutput.Exchange,
+			Date:          unspentOutput.Date.Format("2006-01-02"),
+			AssetId:       unspentOutput.AssetId,
+			AssetName:     assetPrice.Asset.Name,
+			Value:         assetPrice.LatestPrice.Amount * unspentOutput.Amount,
+		})
+	}
+
+	return unspentOutputsViewModel, nil
 }

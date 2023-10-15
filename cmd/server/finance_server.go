@@ -32,7 +32,7 @@ func main() {
 	cryptoService := sqlite.NewDatabaseCryptoService(db)
 	ledger := sqlite.NewDatabaseLedgerService(db, assetsService)
 
-	app = webapp.LaunchServer(ledger, stocksService, cryptoService, polygonService, exchangeService)
+	app = webapp.LaunchServer(ledger, assetsService, stocksService, cryptoService, polygonService, exchangeService)
 
 	defer func() {
 		app.Shutdown()

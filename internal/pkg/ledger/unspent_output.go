@@ -12,7 +12,6 @@ type UnspentOutput struct {
 	TransactionId string
 	Exchange      string
 	Date          time.Time
-	AssetType     assets.AssetType
 	AssetId       int64
 	Amount        float64
 	CostBasis     assets.Money
@@ -36,7 +35,6 @@ func CreateUnspentOutput(
 		TransactionId: transaction_id,
 		Exchange:      exchange,
 		Date:          date,
-		AssetType:     asset_type,
 		AssetId:       asset_id,
 		Amount:        amount,
 		CostBasis:     costBasis,

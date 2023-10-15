@@ -2,6 +2,7 @@ package home
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/paletas/silvestre.finances/internal/pkg/assets"
 	"github.com/paletas/silvestre.finances/internal/pkg/ledger"
 )
 
@@ -9,9 +10,9 @@ type HomeController struct {
 	homeView *IndexView
 }
 
-func NewHomeController(ledger ledger.Ledger) *HomeController {
+func NewHomeController(ledger ledger.Ledger, assetsService assets.AssetsService) *HomeController {
 	return &HomeController{
-		homeView: NewIndexView(ledger),
+		homeView: NewIndexView(ledger, assetsService),
 	}
 }
 

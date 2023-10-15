@@ -12,3 +12,8 @@ type Asset struct {
 	Name string
 	Type AssetType
 }
+
+type AssetLatestPrice struct {
+	Asset       Asset
+	LatestPrice Money
+}

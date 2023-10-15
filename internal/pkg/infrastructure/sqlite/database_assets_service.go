@@ -24,6 +24,22 @@ func (s *DatabaseAssetsService) GetAssetById(id int64) (*assets.Asset, error) {
 	return asset, nil
 }
 
+func (s *DatabaseAssetsService) GetAssetLatestPriceById(id int64) (*assets.AssetLatestPrice, error) {
+	asset, err := s.db.AssetPriceTable.GetAssetById(id)
+	if err != nil {
+		return nil, err
+	}
+	price, currency, err := s.db.AssetPriceTable.GetLatestPrice(asset)
+	if err != nil {
+		return nil, err
+	}
+	return &assets.AssetLatestPrice{
+		Asset: *asset,
+		LatestPrice: assets.Money{
+			Amount:   price,
+			Currency: currency}}, nil
+}
+
 func (s *DatabaseAssetsService) GetAssetLatestPrice(asset *assets.Asset) (*assets.Money, error) {
 	price, currency, err := s.db.AssetPriceTable.GetLatestPrice(asset)
 	if err != nil {

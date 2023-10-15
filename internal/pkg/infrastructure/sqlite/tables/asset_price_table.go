@@ -70,6 +70,9 @@ func (t *AssetPriceTable) GetLatestPrice(asset *assets.Asset) (float64, string, 
 		ORDER BY Date DESC
 		LIMIT 1`, asset.Id).Scan(&price, &currency)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0.0, "UNK", nil
+		}
 		return 0.0, "", err
 	}
 

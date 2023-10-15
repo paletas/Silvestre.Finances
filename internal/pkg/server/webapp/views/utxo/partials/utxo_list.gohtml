@@ -1,26 +1,22 @@
-{{define "components/assets/asset_list"}}
-
-<table>
+{{define "components/utxo/utxo_list"}}
+<table class="table">
     <thead>
-        <th>Id</th>
         <th>Transaction Id</th>
         <th>Exchange</th>
         <th>Available Since</th>
         <th>Asset</th>
-        <th>Amount</th>
+        <th>Value</th>
     </thead>
     <tbody>
         {{range .}}
-        <tr>
-            <td>{{.Id}}</td>
+        <tr data-id="{{.Id}}">
             <td>{{.TransactionId}}</td>
             <td>{{.Exchange}}</td>
             <td>{{.Date}}</td>
-            <td>{{.Asset}}</td>
-            <td>{{.Amount}}</td>
+            <td data-id="{{.AssetId}}">{{.AssetName}}</td>
+            <td>{{.Value}}€</td>
         </tr>
         {{end}}
     </tbody>
 </table>
-
 {{end}}

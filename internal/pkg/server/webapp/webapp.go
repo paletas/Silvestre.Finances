@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	//go:embed "views/templates/*"
+	//go:embed "views/*/*.gohtml" "views/*/*/*.gohtml"
 	viewTemplates embed.FS
 )
 
@@ -32,6 +32,7 @@ type WebApp struct {
 
 func LaunchServer(
 	ledger ledger.Ledger,
+	assetsService assets.AssetsService,
 	stocksService assets.StockAssetsService,
 	cryptoService assets.CryptoAssetsService,
 	polygonService *polygon.PolygonService,
@@ -45,7 +46,7 @@ func LaunchServer(
 		ledger: ledger,
 		app:    app,
 
-		homeController:   home_views.NewHomeController(ledger),
+		homeController:   home_views.NewHomeController(ledger, assetsService),
 		utxoController:   utxo_views.NewUTXOController(ledger, stocksService, polygonService, exchangeService),
 		assetsController: assets_views.NewAssetsController(stocksService, cryptoService, polygonService),
 	}
